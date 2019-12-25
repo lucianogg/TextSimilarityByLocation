@@ -1,4 +1,4 @@
-- From text to entities (DBpedia Spotlight) - using their public API
-- From named entities to places - using DBpedia Sparql
-- From places to latitude and longitude - using DBpedia Sparql
+DONE - From text to entities (DBpedia Spotlight) - using their public API
+DONE - From named entities to places - using DBpedia Sparql
+DONE - From places to latitude and longitude - using DBpedia Sparql
 - Search engine that allows one to search nearby texts by named entities
