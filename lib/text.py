@@ -125,7 +125,7 @@ class Text():
             print('Latitude:',row[1])
             print('Longitude:',row[2])
             print(row[0])
-
-
     
+
+
 
