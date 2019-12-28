@@ -37,6 +37,7 @@ class Text():
         # print(json.dumps(retrieved_json, indent=4))
 
         resources_detected = [resource.Resource.resource_from_dbpedia_spotlight_annotation(res) for res in retrieved_json['Resources']]
+        self.resources = resources_detected
 
         locations_detected = list(filter(lambda x: x[0] is not None, [res.get_location() for res in resources_detected]))
         print(locations_detected)
