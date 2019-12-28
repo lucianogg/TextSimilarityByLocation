@@ -5,10 +5,15 @@ import lib.resource as resource
 
 import urllib.parse
 
+import sqlite3
+from sqlite3 import Error
+
 class Text():
     def __init__(self):
         self.raw_text = None
         self.locations = []
+        self.latitude = None
+        self.longitude = None
 
     @classmethod
     def text_from_string(cls, string):
@@ -44,4 +49,41 @@ class Text():
 
     def get_main_location(self, tolerance_in_km=2000):
         # Do the clustering stuff to get the "prominent location"
+
+
         pass
+
+    # def export_data(self,entities):
+ 
+    #     cursorObj = con.cursor()
+        
+    #     cursorObj.execute('INSERT INTO employees(id, name, salary, department, position, hireDate) VALUES(?, ?, ?, ?, ?, ?)', entities)
+        
+    #     con.commit()
+    
+    #     entities = (2, 'Andrew', 800, 'IT', 'Tech', '2018-02-06')
+    
+    #     sql_insert(con, entities)
+
+    def export_data(self, con):
+        cursorObj = con.cursor()
+        if self.longitude is None or self.latitude is None:
+            self.get_main_location()
+        cursorObj.execute("INSERT INTO locations VALUES('%s', %d, %d)")%(self.raw_text, self.latitude, self.longitude)
+        con.commit()
+    
+    def get_nearby_texts(self, con):
+
+        cursorObj = con.cursor()
+
+        tamLatitude = 10
+        tamLongitude = 10
+
+        rangeLatitudeMax = self.latitude + tamLatitude
+        rangeLatitudeMin = self.latitude - tamLatitude
+
+        rangeLongitudeMax = self.longitude + tamLongitude
+        rangeLongitudeMin = self.longitude - tamLongitude
+
+        cursorObj.execute("SELECT * FROM locations WHERE latitude BETWEEN %d AND %d AND longitude BETWEEN %d AND %d ORDER BY POW((latitude - %d),2) + POW((longitude - %d),2) LIMIT 10")%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.longitude)
+
