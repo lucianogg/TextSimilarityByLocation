@@ -41,10 +41,19 @@ class Text():
         })
         r1 = conn.getresponse()
         retrieved_text = r1.read()
+        if r1.code != 200:
+            self.locations = []
+            return self.locations
+            
         retrieved_json = json.loads(retrieved_text)
+
         conn.close()
 
         # print(json.dumps(retrieved_json, indent=4))
+
+        if 'Resources' not in retrieved_json:
+            self.locations = []
+            return self.locations
 
         resources_detected = [resource.Resource.resource_from_dbpedia_spotlight_annotation(res) for res in retrieved_json['Resources']]
         self.resources = resources_detected
@@ -59,8 +68,27 @@ class Text():
         # Do the clustering stuff to get the "predominant location"
         if self.locations == None:
             self.get_locations()
+
+        if len(self.locations) == 0:
+            self.latitude = -1000.0
+            self.longitude = -1000.0
+            return self.latitude, self.longitude
         
-        db = DBSCAN(eps=0.05, min_samples=1).fit(self.locations)
+        def filter_out_integers(val_tuple):
+            test1 = abs(val_tuple[0] - int(val_tuple[0])) < 0.001            
+            test2 = abs(val_tuple[1] - int(val_tuple[1])) < 0.001
+            if test1 and test2:
+                return False
+            else:
+                return True
+
+        filtered_locations = list(filter(filter_out_integers, self.locations))
+        if len(filtered_locations) > 0:
+            locations = filtered_locations
+        else:
+            locations = self.locations
+        
+        db = DBSCAN(eps=0.05, min_samples=1).fit(locations)
 
         predominant_cluster = stats.mode(db.labels_)[0][0]
         entities_of_cluster = db.components_[db.labels_ == predominant_cluster]
