@@ -5,8 +5,13 @@ import lib.resource as resource
 
 import urllib.parse
 
+
 import sqlite3
 from sqlite3 import Error
+
+from sklearn.cluster import DBSCAN
+import numpy as np
+from scipy import stats
 
 class Text():
     def __init__(self):
@@ -42,28 +47,29 @@ class Text():
         # print(json.dumps(retrieved_json, indent=4))
 
         resources_detected = [resource.Resource.resource_from_dbpedia_spotlight_annotation(res) for res in retrieved_json['Resources']]
+        self.resources = resources_detected
 
         locations_detected = list(filter(lambda x: x[0] is not None, [res.get_location() for res in resources_detected]))
-        print(locations_detected)
+        self.locations = locations_detected
+        # print(locations_detected)
         return locations_detected
 
-    def get_main_location(self, tolerance_in_km=2000):
-        # Do the clustering stuff to get the "prominent location"
 
-
-        pass
-
-    # def export_data(self,entities):
- 
-    #     cursorObj = con.cursor()
+    def get_main_location(self):
+        # Do the clustering stuff to get the "predominant location"
+        if self.locations == None:
+            self.get_locations()
         
-    #     cursorObj.execute('INSERT INTO employees(id, name, salary, department, position, hireDate) VALUES(?, ?, ?, ?, ?, ?)', entities)
-        
-    #     con.commit()
-    
-    #     entities = (2, 'Andrew', 800, 'IT', 'Tech', '2018-02-06')
-    
-    #     sql_insert(con, entities)
+        db = DBSCAN(eps=0.05, min_samples=1).fit(self.locations)
+
+        predominant_cluster = stats.mode(db.labels_)[0][0]
+        entities_of_cluster = db.components_[db.labels_ == predominant_cluster]
+        mean_predominant_location = np.mean(entities_of_cluster, axis=0)
+
+        self.latitude = mean_predominant_location[0]
+        self.longitude = mean_predominant_location[1]
+        return self.latitude, self.longitude
+
 
     def export_data(self, con):
         cursorObj = con.cursor()
@@ -86,4 +92,7 @@ class Text():
         rangeLongitudeMin = self.longitude - tamLongitude
 
         cursorObj.execute("SELECT * FROM locations WHERE latitude BETWEEN %d AND %d AND longitude BETWEEN %d AND %d ORDER BY POW((latitude - %d),2) + POW((longitude - %d),2) LIMIT 10")%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.longitude)
+
+
+    
 
