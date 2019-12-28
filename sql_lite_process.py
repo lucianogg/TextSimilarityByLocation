@@ -17,11 +17,10 @@ def sql_table(con):
  
     cursorObj = con.cursor()
  
-    cursorObj.execute("CREATE TABLE locations(id integer PRIMARY KEY, texts text, latitude integer, longitude integer)")
+    cursorObj.execute("CREATE TABLE locations(id integer PRIMARY KEY AUTOINCREMENT, texts text, latitude float, longitude float)")
  
     con.commit()
  
-con = sql_connection()
- 
-sql_table(con)
+# con = sql_connection()
+# sql_table(con)
 

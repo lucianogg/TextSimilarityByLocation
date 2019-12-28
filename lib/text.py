@@ -75,7 +75,7 @@ class Text():
         cursorObj = con.cursor()
         if self.longitude is None or self.latitude is None:
             self.get_main_location()
-        cursorObj.execute("INSERT INTO locations VALUES('%s', %d, %d)")%(self.raw_text, self.latitude, self.longitude)
+        cursorObj.execute("INSERT INTO locations(texts, latitude, longitude) VALUES('%s', %f, %f)"%(self.raw_text, self.latitude, self.longitude))
         con.commit()
     
     def get_nearby_texts(self, con):
@@ -91,7 +91,7 @@ class Text():
         rangeLongitudeMax = self.longitude + tamLongitude
         rangeLongitudeMin = self.longitude - tamLongitude
 
-        cursorObj.execute("SELECT * FROM locations WHERE latitude BETWEEN %d AND %d AND longitude BETWEEN %d AND %d ORDER BY POW((latitude - %d),2) + POW((longitude - %d),2) LIMIT 10")%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.longitude)
+        cursorObj.execute("SELECT * FROM locations WHERE latitude BETWEEN %f AND %f AND longitude BETWEEN %f AND %f ORDER BY POW((latitude - %f),2) + POW((longitude - %f),2) LIMIT 10"%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.longitude))
 
 
     

@@ -14,6 +14,9 @@ raw_text = "First documented in the 13th century, Berlin was the capital of the 
 
 text_to_process = text.Text.text_from_string(raw_text)
 locations = text_to_process.get_locations()
+
+text_to_process.export_data(con)
+
 print(locations)
 
 con.close()
