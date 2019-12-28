@@ -16,7 +16,7 @@ from scipy import stats
 class Text():
     def __init__(self):
         self.raw_text = None
-        self.locations = []
+        self.locations = None
         self.latitude = None
         self.longitude = None
 
@@ -119,7 +119,12 @@ class Text():
         rangeLongitudeMax = self.longitude + tamLongitude
         rangeLongitudeMin = self.longitude - tamLongitude
 
-        cursorObj.execute("SELECT * FROM locations WHERE latitude BETWEEN %f AND %f AND longitude BETWEEN %f AND %f ORDER BY POW((latitude - %f),2) + POW((longitude - %f),2) LIMIT 10"%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.longitude))
+        cursorObj.execute("SELECT texts, latitude, longitude FROM locations WHERE latitude BETWEEN %f AND %f AND longitude BETWEEN %f AND %f ORDER BY ((latitude - %f) * (latitude - %f)) + ((longitude - %f) * (longitude - %f)) LIMIT 10"%(rangeLatitudeMin, rangeLatitudeMax, rangeLongitudeMin, rangeLongitudeMax, self.latitude, self.latitude, self.longitude, self.longitude))
+        rows = cursorObj.fetchall()
+        for row in rows:
+            print('Latitude:',row[1])
+            print('Longitude:',row[2])
+            print(row[0])
 
 
     
